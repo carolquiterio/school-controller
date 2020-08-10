@@ -1,12 +1,11 @@
 public class Resultado
 {
-
-	private String ra;
+	private short ra;
 	private int cod;
-	private int nota;
+	private double nota;
 	private double freq;
 
-	public Resultado (String ra, int cod, int nota, double freq) throws Exception
+	public Resultado (short ra, int cod, double nota, double freq) throws Exception
 	{
 		this.setRa(ra);
 		this.setCod(cod);
@@ -14,10 +13,10 @@ public class Resultado
 		this.setFreq(freq);
 	}
 
-	public void setRa(String ra) throws Exception
+	public void setRa(short ra) throws Exception
 	{
-		if (ra == null || ra.equals(""))
-			throw new Exception("Insira um ra válido!");
+		if (ra <= 0)
+			throw new Exception("Insira um ra valido!");
 
 		this.ra = ra;
 	}
@@ -25,28 +24,28 @@ public class Resultado
 	public void setCod(int cod) throws Exception
 	{
 		if (cod <= 0)
-			throw new Exception("Insira um codigo válido!");
+			throw new Exception("Insira um codigo valido!");
 
 		this.cod = cod;
 	}
 
-	public void setNota(int nota) throws Exception
+	public void setNota(double nota) throws Exception
 	{
 		if (nota < 0 || nota > 10)
-			throw new Exception("Insira uma nota válida!");
+			throw new Exception("Insira uma nota valida!");
 
 		this.nota = nota;
 	}
 
 	public void setFreq(double freq) throws Exception
 	{
-		if (nota < 0 || nota > 1)
-			throw new Exception ("Insira uma frequencia válida!");
+		if (freq < 0 || freq > 1)
+			throw new Exception ("Insira uma frequencia valida!");
 
 		this.freq = freq;
 	}
 
-	public String getRa()
+	public short getRa()
 	{
 		return this.ra;
 	}
@@ -56,7 +55,7 @@ public class Resultado
 		return this.cod;
 	}
 
-	public int getNota()
+	public double getNota()
 	{
 		return this.nota;
 	}
@@ -82,8 +81,8 @@ public class Resultado
 	{
 		int ret=666;
 
-		ret = ret + new Integer(this.nota).hashCode();
-		ret = ret + this.ra.hashCode();
+		ret = ret + new Double(this.nota).hashCode();
+		ret = ret + new Short (this.ra).hashCode();
 		ret = ret + new Integer (this.cod).hashCode();
 		ret = ret + new Double (this.freq).hashCode();
 
@@ -107,10 +106,9 @@ public class Resultado
 	    	ret = new Resultado (this);
 	    }
 	    catch (Exception erro)
-	    {} // nao trato, pq this nunca é null e construtor de
+	    {} // nao trato, pq this nunca ï¿½ null e construtor de
 	           // copia da excecao qdo seu parametro for null
 
 	    return ret;
     }
-
 }

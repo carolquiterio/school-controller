@@ -1,10 +1,13 @@
 const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const port = 3000; //porta padrão
 const sql = require("mssql");
+const bodyParser = require("body-parser");
+
+const port = 3000;
+
 const connStr =
   "Server=regulus;Database=BD19351;User Id=BD19351;Password=euamofiana;";
+
+const app = express();
 
 sql
   .connect(connStr)
@@ -14,30 +17,45 @@ sql
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const router = express.Router();
-router.get("/", (req, res) => res.json({ message: "Funcionando!" }));
-app.use("/", router);
-
-function execSQLQuery(sqlQry, res) {
-  global.conn
-    .request()
-    .query(sqlQry)
-    .then(result => res.json(result.recordset))
-    .catch(err => res.json(err));
+function execSQLQuery(sqlQry) {
+  return global.conn.request().query(sqlQry);
 }
 
-router.get("/clientes", (req, res) => {
-  execSQLQuery("SELECT * FROM OiTeste", res);
-});
+app.post("/matricula", async (req, res) => {
+  const ra = parseInt(req.body.ra);
+  const cod = parseInt(req.body.cod);
+  const nota = parseFloat(req.body.nota);
+  const freq = parseFloat(req.body.freq);
 
-router.get("/clientes/:id?", (req, res) => {
-  let filter = "";
-  if (req.params.id) filter = " WHERE ID=" + parseInt(req.params.id);
-  execSQLQuery("SELECT * FROM OiTeste" + filter, res);
-});
+  const selectedAluno = await execSQLQuery(
+    `SELECT * FROM Alunos WHERE RA = ${ra}`
+  );
+  if (selectedAluno.recordset.length === 0)
+    res.json({ logradouro: "RA inválido!" });
 
-router.delete("/clientes/:id", (req, res) => {
-  execSQLQuery("DELETE OiTeste WHERE ID=" + parseInt(req.params.id), res);
+  const selectedDisciplina = await execSQLQuery(
+    `SELECT * FROM Disciplinas WHERE COD = ${cod}`
+  );
+  if (selectedDisciplina.recordset.length === 0)
+    res.json({ logradouro: "Disciplina inválida!" });
+
+  const selectedMatricula = await execSQLQuery(
+    `SELECT * FROM Matriculas WHERE COD = ${cod} AND RA = ${ra}`
+  );
+  if (selectedMatricula.recordset.length === 0)
+    res.json({ logradouro: "Matricula inválida!" });
+
+  if (nota < 0 || nota > 10) res.json({ logradouro: "Nota inválida!" });
+
+  if (freq < 0 || freq > 1) res.json({ logradouro: "Frequência inválida!" });
+
+  await execSQLQuery(`DELETE Matriculas WHERE RA=${ra} AND COD=${cod}`);
+
+  await execSQLQuery(
+    `INSERT INTO RESULTADOS VALUES(${ra}, ${cod}, ${nota}, ${freq})`
+  );
+
+  return res.json({ logradouro: "Sucesso na consulta!" });
 });
 
 app.listen(port);
